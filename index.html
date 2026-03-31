@@ -19,12 +19,47 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            position: relative; /* Butonlar için relative */
         }
 
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+
+        /* --- ÜST KONTROL BUTONLARI --- */
+        .top-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 200;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f8fafc;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
 
         /* Glassmorphism Dashboard */
@@ -95,17 +130,71 @@
             background: rgba(56, 189, 248, 0.1); border-left: 4px solid #38bdf8; padding: 1.5rem; border-radius: 8px; text-align: left; margin: 1rem 0; display: none; animation: slideUp 0.5s ease forwards;
         }
         
-        /* ŞİFRE POPUP (Modal) */
+        /* MODAL VE POPUPLAR */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; visibility: hidden; transition: all 0.5s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 300; opacity: 0; visibility: hidden; transition: all 0.5s ease;
         }
         .modal-overlay.show { opacity: 1; visibility: visible; }
         
         .modal-content {
-            background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px solid #fbbf24; padding: 3rem; border-radius: 24px; text-align: center; transform: scale(0.8); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(251, 191, 36, 0.2); max-width: 500px;
+            background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px solid #fbbf24; padding: 3rem; border-radius: 24px; text-align: center; transform: scale(0.8); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(251, 191, 36, 0.2); max-width: 500px; position: relative;
         }
         .modal-overlay.show .modal-content { transform: scale(1); }
         
+        /* BİLGİ POPUP ÖZEL STİLLERİ */
+        .info-content {
+            border-color: #38bdf8;
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.2);
+            padding: 2.5rem;
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-modal-btn:hover { color: #ef4444; }
+
+        .info-text-area {
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #f8fafc;
+            margin: 1.5rem 0;
+            line-height: 1.6;
+        }
+
+        .info-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+        .nav-btn:hover { background: #38bdf8; color: #0f172a; }
+        .nav-btn:disabled { border-color: #475569; color: #475569; cursor: not-allowed; background: transparent; }
+        
+        .page-indicator { color: #cbd5e1; font-weight: 600; }
+
         .celebration-icon { font-size: 4rem; margin-bottom: 1rem; animation: bounce 2s infinite; display: inline-block; }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
         
@@ -116,6 +205,11 @@
     </style>
 </head>
 <body>
+
+<div class="top-controls">
+    <button class="icon-btn" id="btnOpenInfo" title="Bilgi Al">?</button>
+    <button class="icon-btn" id="btnFullscreen" title="Tam Ekran">⛶</button>
+</div>
 
 <div class="glass-panel">
     
@@ -188,6 +282,22 @@
 
 </div>
 
+<div class="modal-overlay" id="infoModalOverlay">
+    <div class="modal-content info-content">
+        <button class="close-modal-btn" onclick="closeInfoModal()">✖</button>
+        <h2 style="color: #38bdf8; font-size: 1.8rem;">Biliyor muydun? 💧</h2>
+        
+        <div class="info-text-area" id="infoText">
+            </div>
+
+        <div class="info-nav-container">
+            <button class="nav-btn" id="btnPrevInfo" onclick="changeInfo(-1)">◄ Geri</button>
+            <span class="page-indicator" id="pageIndicator">1 / 3</span>
+            <button class="nav-btn" id="btnNextInfo" onclick="changeInfo(1)">İleri ►</button>
+        </div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="passwordModal">
     <div class="modal-content">
         <div class="celebration-icon">🏆</div>
@@ -197,12 +307,93 @@
         <div class="password-box" onclick="navigator.clipboard.writeText('damla'); alert('Şifre Kopyalandı!');">
             damla
         </div>
-                
-        <!-- <button class="btn" style="background: linear-gradient(135deg, #fbbf24, #d97706);" onclick="location.reload()">Sonraki Adıma Geç ➔</button> -->
     </div>
 </div>
 
 <script>
+    /* =========================================
+       TAM EKRAN VE YENİ ÖZELLİKLER (EKLENENLER)
+       ========================================= */
+
+    // --- Tam Ekran İşlemleri ---
+    const btnFullscreen = document.getElementById('btnFullscreen');
+    
+    btnFullscreen.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            // Tam ekrana geç
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Tam ekran hatası: ${err.message}`);
+            });
+        } else {
+            // Tam ekrandan çık
+            document.exitFullscreen();
+        }
+    });
+
+    // Tam ekran durumu değiştiğinde buton ikonunu güncelle
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            btnFullscreen.innerText = '✖'; // Çıkış İkonu
+            btnFullscreen.title = "Tam Ekrandan Çık";
+        } else {
+            btnFullscreen.innerText = '⛶'; // Tam Ekran İkonu
+            btnFullscreen.title = "Tam Ekran";
+        }
+    });
+
+
+    // --- Bilgi Popup İşlemleri ---
+    const infoData = [
+        "Dünyamızın yüzeyinin yaklaşık %71'i sularla kaplıdır, ancak bu devasa miktarın sadece çok ufak bir kısmı içilebilir niteliktedir.",
+        "Su kaynaklarımızın büyük bir çoğunluğu okyanuslarda tuzlu su olarak bulunur. Tatlı suların çoğu ise maalesef ulaşamayacağımız buzullarda donmuş haldedir.",
+        "Bu simülasyon, elimizde kalan o 'küçük' kullanılabilir tatlı su miktarının değerini ve onu nasıl korumamız gerektiğini anlaman için tasarlandı."
+    ];
+    let currentInfoIndex = 0;
+
+    const infoModalOverlay = document.getElementById('infoModalOverlay');
+    const infoText = document.getElementById('infoText');
+    const pageIndicator = document.getElementById('pageIndicator');
+    const btnPrevInfo = document.getElementById('btnPrevInfo');
+    const btnNextInfo = document.getElementById('btnNextInfo');
+
+    function updateInfoContent() {
+        infoText.innerText = infoData[currentInfoIndex];
+        pageIndicator.innerText = `${currentInfoIndex + 1} / ${infoData.length}`;
+        
+        // Butonları durumuna göre aktif/pasif yap
+        btnPrevInfo.disabled = currentInfoIndex === 0;
+        btnNextInfo.disabled = currentInfoIndex === infoData.length - 1;
+    }
+
+    function changeInfo(step) {
+        currentInfoIndex += step;
+        if (currentInfoIndex < 0) currentInfoIndex = 0;
+        if (currentInfoIndex >= infoData.length) currentInfoIndex = infoData.length - 1;
+        updateInfoContent();
+    }
+
+    function openInfoModal() {
+        updateInfoContent();
+        infoModalOverlay.classList.add('show');
+    }
+
+    function closeInfoModal() {
+        infoModalOverlay.classList.remove('show');
+    }
+
+    // "Soru İşareti" butonuna tıklanınca popup'ı aç
+    document.getElementById('btnOpenInfo').addEventListener('click', openInfoModal);
+
+    // Oyun yüklendiğinde Popup'ı otomatik göster
+    window.onload = () => {
+        setTimeout(openInfoModal, 500); // Ekran yüklendikten yarım saniye sonra açılır
+    };
+
+
+    /* =========================================
+       OYUNUN ORİJİNAL KODLARI (AŞAĞIDADIR)
+       ========================================= */
+
     // Aşama 1
     const dropSlider = document.getElementById('dropSlider');
     const dropDisplay = document.getElementById('dropDisplay');
